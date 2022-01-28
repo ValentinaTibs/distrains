@@ -21,39 +21,77 @@ void broadcast(int idx, train* trains){
 }
 
 
+class tDSectionOccupation{
+public:
+    int occupationStart;
+    std::string routeId;
+    std::string tDSectionID;
+    int trainSequenceID;
+    
+    tDSectionOccupation(int _occupationStart,std::string _routeId,std::string _tDSectionID,int _trainSequenceID){
+        this->occupationStart = _occupationStart;
+        this->routeId = _routeId;
+        this->tDSectionID = _tDSectionID;
+        this->trainSequenceID = _trainSequenceID;
+    }
+};
+
+class rTTPForSingleTrain{
+public:
+    std::vector<tDSectionOccupation> tDSectionOccupations;
+    std::string journeyId;
+    std::string trainId;
+    
+    rTTPForSingleTrain(std::string _journeyId, std::string _trainId ){
+        this->journeyId = _journeyId;
+        this->trainId = _trainId;
+    }
+    void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation){
+        tDSectionOccupations.push_back(_newtDSectionOccupation);
+    }
+};
+
 class RTTP{
 public:
+    std::map<std::string, rTTPForSingleTrain> rTTPTrainView;
+    std::map<std::string, rTTPForSingleTDSection> rTTPInfrastructureView;
     
-    std::map<std::string, tinyxml2::XMLElement*> rTTPTrainView;
-    std::map<std::string, tinyxml2::XMLElement*> rTTPInfrastructureView;
+    
     
     RTTP(std::string filename){
-        
+       
         tinyxml2::XMLDocument doc;
         doc.LoadFile( filename.c_str() );
-        
-        const char* v = "failed";
-        
+
+       
         tinyxml2::XMLNode* ele = doc.FirstChildElement( "rTTP" )->FirstChildElement("rTTPTrainView")->FirstChildElement();
         
         for( ; ele; ele = ele->NextSibling() ){
-            tinyxml2::XMLError queryResult = ele->ToElement()->QueryStringAttribute("trainId", &v);
-            printf( " %s\n",v );
-            tinyxml2::XMLElement* insert_elem = ele->ToElement();
-//            // Get the document context where new memory will be allocated from
-//            tinyxml2::XMLDocument *p_doc = p_dest_parent->GetDocument();
-
-
-            rTTPTrainView.insert(std::pair<std::string, tinyxml2::XMLElement*>(std::string(v),insert_elem));
+            const char* trainId = "failed";
+            const char* journeyId = "failed";
+            
+            tinyxml2::XMLError queryResult1 = ele->ToElement()->QueryStringAttribute("trainId", &trainId);
+            tinyxml2::XMLError queryResult2 = ele->ToElement()->QueryStringAttribute("journeyId", &journeyId);
+            
+            rTTPForSingleTrain newRTTPforSingleTrain( (std::string(journeyId)), (std::string(trainId)) );
+            
+            tinyxml2::XMLNode* single_ele = ele->FirstChildElement();
+            for( ; single_ele; single_ele = single_ele->NextSibling() ){
+                int occupationStart;
+                int trainSequenceID;
+                const char* routeId = "failed";
+                const char* tDSectionID = "failed";
+                
+                tinyxml2::XMLError queryResult1 = single_ele->ToElement()->QueryIntAttribute("occupationStart", &(occupationStart));
+                tinyxml2::XMLError queryResult2 = single_ele->ToElement()->QueryIntAttribute("trainSequenceID", &(trainSequenceID));
+                tinyxml2::XMLError queryResult3 = single_ele->ToElement()->QueryStringAttribute("routeId", &(routeId));
+                tinyxml2::XMLError queryResult4 = single_ele->ToElement()->QueryStringAttribute("tDSectionID", &(tDSectionID));
+                
+                tDSectionOccupation newtDSOcc(occupationStart,std::string(routeId),std::string(tDSectionID),trainSequenceID);
+                newRTTPforSingleTrain.addtDSectionOccupation(newtDSOcc);
+            }
+            rTTPTrainView.insert(std::pair<std::string, rTTPForSingleTrain>(std::string(trainId),newRTTPforSingleTrain));
         }
-        
-//        ele = doc.FirstChildElement( "rTTP" )->FirstChildElement("rTTPInfrastructureView")->FirstChildElement();
-//        for( ; ele; ele = ele->NextSibling() ){
-//            tinyxml2::XMLError queryResult = ele->ToElement()->QueryStringAttribute("trainId", &v);
-//            printf( " %s\n",v );
-//            tinyxml2::XMLElement* insert_elem = ele->ToElement();
-//            rTTPTrainView.insert(std::pair<std::string, tinyxml2::XMLElement*>(std::string(v),insert_elem));
-//        }
         
     }
 
@@ -62,12 +100,12 @@ public:
     }
     
     void printAll(void){
-//        for( ; ele; ele = ele->NextSibling() ){
-//        }
         for (auto it = rTTPTrainView.begin(); it != rTTPTrainView.end(); it++)
         {
-            printf(" --> %s ",it->first.c_str());
-            //it->second->ToDocument()->Print();
+            printf("\n\n --> %s \n",it->first.c_str());
+            for (auto fr = it->second.tDSectionOccupations.begin(); fr != it->second.tDSectionOccupations.end();fr++){
+                printf("occupationStart=%d routeId=%s tDSectionID=%s trainSequenceID=%d \n",fr->occupationStart,fr->routeId.c_str(),fr->tDSectionID.c_str(),fr->trainSequenceID);
+            }
         }
     }
 };
