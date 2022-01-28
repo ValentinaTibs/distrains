@@ -23,8 +23,9 @@ void broadcast(int idx, train* trains){
 
 class RTTP{
 public:
-    std::map<std::string, tinyxml2::XMLDocument> rTTPTrainView;
-    //std::map<std::string, tinyxml2::XMLNode> rTTPInfrastructureView;
+    
+    std::map<std::string, tinyxml2::XMLElement*> rTTPTrainView;
+    std::map<std::string, tinyxml2::XMLElement*> rTTPInfrastructureView;
     
     RTTP(std::string filename){
         
@@ -38,18 +39,36 @@ public:
         for( ; ele; ele = ele->NextSibling() ){
             tinyxml2::XMLError queryResult = ele->ToElement()->QueryStringAttribute("trainId", &v);
             printf( " %s\n",v );
-            //std::pair<std::string,tinyxml2::XMLNode> gianni(,ele);
-            //rTTPTrainView[std::string(v)] = ele;
-            tinyxml2::XMLDocument target;
-            ele->DeepClone(&target);
-            //rTTPTrainView.insert(std::pair<std::string, tinyxml2::XMLDocument>(,target));
-            rTTPTrainView[std::string(v)] = target;
-        }
+            tinyxml2::XMLElement* insert_elem = ele->ToElement();
+//            // Get the document context where new memory will be allocated from
+//            tinyxml2::XMLDocument *p_doc = p_dest_parent->GetDocument();
 
+
+            rTTPTrainView.insert(std::pair<std::string, tinyxml2::XMLElement*>(std::string(v),insert_elem));
+        }
+        
+//        ele = doc.FirstChildElement( "rTTP" )->FirstChildElement("rTTPInfrastructureView")->FirstChildElement();
+//        for( ; ele; ele = ele->NextSibling() ){
+//            tinyxml2::XMLError queryResult = ele->ToElement()->QueryStringAttribute("trainId", &v);
+//            printf( " %s\n",v );
+//            tinyxml2::XMLElement* insert_elem = ele->ToElement();
+//            rTTPTrainView.insert(std::pair<std::string, tinyxml2::XMLElement*>(std::string(v),insert_elem));
+//        }
+        
     }
 
     virtual ~RTTP(){
         return;
+    }
+    
+    void printAll(void){
+//        for( ; ele; ele = ele->NextSibling() ){
+//        }
+        for (auto it = rTTPTrainView.begin(); it != rTTPTrainView.end(); it++)
+        {
+            printf(" --> %s ",it->first.c_str());
+            //it->second->ToDocument()->Print();
+        }
     }
 };
 
@@ -91,8 +110,9 @@ int main (int argc, char *argv[]) {
 //	}
     
     // this conf should be put in a json
-//    std::string fileRTT_anc = "RTTP.3branch.xml";//,  fileRTT_A, fileRTT_B;
-//    RTTP RTT_anc = RTTP(fileRTT_anc);
+    std::string fileRTT_anc = "RTTP.3branch.xml";//,  fileRTT_A, fileRTT_B;
+    RTTP RTT_anc = RTTP(fileRTT_anc);
+    RTT_anc.printAll();
 
 //    RTT* RTT_anc = load_RTT(fileRTT_anc);
 //    RTT* RTT_A = load_RTT(fileRTT_A);
