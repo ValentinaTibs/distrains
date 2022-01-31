@@ -52,7 +52,6 @@ public:
     std::map<std::string, std::vector<tDSectionOccupation> > rTTPInfrastructureView;
     
     
-    
     RTTP(std::string filename){
        
         // 2do metterci un check per vedere se il file esiste
@@ -136,12 +135,16 @@ public:
         }
         for (auto it = rTTPInfrastructureView.begin(); it != rTTPInfrastructureView.end(); it++)
         {
-            printf("\n\n TRACK --> %s \n",it->first.c_str());
+            printf("\n TRACK --> %s \n",it->first.c_str());
             for (auto fr = it->second.begin(); fr != it->second.end();fr++){
                 printf("occupationStart=%d routeId=%s tDSectionID=%s trackSequenceID=%d \n",fr->occupationStart,fr->routeId.c_str(),fr->tDSectionID.c_str(),fr->trackSequenceID);
             }
         }
     }
+    
+    //2do
+    // implement here a method to check if 2 rttp are the same
+    
     
     enum errorCode{
         MERGE_SUCCESS,
@@ -162,14 +165,13 @@ public:
             
             if( this->rTTPInfrastructureView.find(it->first) == this->rTTPInfrastructureView.end() )
             {
-                // 2do - this INSERT is not what it should be done - but instead we have to think on a merge data structure - in this case data presents in the ANC but not in the INPUT might be overwritten
-                this->rTTPInfrastructureView.insert(std::pair<std::string, std::vector<tDSectionOccupation> >(std::string(it->first),it->second));
+                // 2do - this INSERT is not what it should be done - but instead we have to think on a merge data structure - in this case data presents in the ANC but not in the INPUT might be overwritten - or maybe this is just needed in cases of key that is found but has a different content
+                auto merged_val = it->second  ;
+                this->rTTPInfrastructureView.insert(std::pair<std::string, std::vector<tDSectionOccupation> >(std::string(it->first),merged_val));
             }
         }
-        
         return retval;
     }
 };
-
 
 #endif /* RTTP_h */

@@ -6,6 +6,17 @@
 </PLAY>
 <rTTP>
   <rTTPTrainView>
+    <rTTPForSingleTrain journeyId="I:BR_S26l-BL_S20l--a11-a6.St___CL" trainId="1001_0">
+      <tDSectionOccupation occupationStart="0" routeId="3branchStation-9-P:BR_S26l-S25l" tDSectionID="TC2_11" trainID="1001_0" trainSequenceID="0"/>
+      <tDSectionOccupation occupationStart="50" routeId="3branchStation-771-P:S25l-St_S41l" tDSectionID="TC2_10" trainID="1001_0" trainSequenceID="1"/>
+      <tDSectionOccupation occupationStart="63" routeId="3branchStation-771-P:S25l-St_S41l" tDSectionID="TC4_3" trainID="1001_0" trainSequenceID="2"/>
+      <tDSectionOccupation occupationStart="92" routeId="3branchStation-329-P:St_S41l-St_S40l" tDSectionID="TC4_2" trainID="1001_0" trainSequenceID="3"/>
+      <tDSectionOccupation occupationStart="160" routeId="3branchStation-317-P:St_S40l-S22l" tDSectionID="TC4_1" trainID="1001_0" trainSequenceID="4"/>
+      <tDSectionOccupation occupationStart="222" routeId="3branchStation-317-P:St_S40l-S22l" tDSectionID="TC2_4" trainID="1001_0" trainSequenceID="5"/>
+      <tDSectionOccupation occupationStart="238" routeId="3branchStation-509-P:S22l-S21l" tDSectionID="TC2_3" trainID="1001_0" trainSequenceID="6"/>
+      <tDSectionOccupation occupationStart="258" routeId="3branchStation-509-P:S22l-S21l" tDSectionID="TC2_2" trainID="1001_0" trainSequenceID="7"/>
+      <tDSectionOccupation occupationStart="287" routeId="3branchStation-428-P:S21l-BL_S20l" tDSectionID="TC2_1" trainID="1001_0" trainSequenceID="8"/>
+    </rTTPForSingleTrain>
     <rTTPForSingleTrain journeyId="I:BR_S26l-BL_S20l.St___CL" trainId="1003_0">
       <tDSectionOccupation occupationStart="600" routeId="3branchStation-9-P:BR_S26l-S25l" tDSectionID="TC2_11" trainID="1003_0" trainSequenceID="0"/>
       <tDSectionOccupation occupationStart="650" routeId="3branchStation-771-P:S25l-St_S24l" tDSectionID="TC2_10" trainID="1003_0" trainSequenceID="1"/>
@@ -23,21 +34,27 @@
 
   <rTTPInfrastructureView>
     <rTTPForSingleTDSection tDSectionId="TC2_1">
+      <tDSectionOccupation occupationStart="287" routeId="3branchStation-428-P:S21l-BL_S20l" tDSectionID="TC2_1" trackSequenceID="0" trainID="1001_0"/>
       <tDSectionOccupation occupationStart="887" routeId="3branchStation-428-P:S21l-BL_S20l" tDSectionID="TC2_1" trackSequenceID="1" trainID="1003_0"/>
     </rTTPForSingleTDSection>
     <rTTPForSingleTDSection tDSectionId="TC2_10">
+      <tDSectionOccupation occupationStart="50" routeId="3branchStation-771-P:S25l-St_S41l" tDSectionID="TC2_10" trackSequenceID="0" trainID="1001_0"/>
       <tDSectionOccupation occupationStart="650" routeId="3branchStation-771-P:S25l-St_S24l" tDSectionID="TC2_10" trackSequenceID="2" trainID="1003_0"/>
     </rTTPForSingleTDSection>
     <rTTPForSingleTDSection tDSectionId="TC2_11">
+      <tDSectionOccupation occupationStart="0" routeId="3branchStation-9-P:BR_S26l-S25l" tDSectionID="TC2_11" trackSequenceID="0" trainID="1001_0"/>
       <tDSectionOccupation occupationStart="600" routeId="3branchStation-9-P:BR_S26l-S25l" tDSectionID="TC2_11" trackSequenceID="2" trainID="1003_0"/>
     </rTTPForSingleTDSection>
     <rTTPForSingleTDSection tDSectionId="TC2_2">
+      <tDSectionOccupation occupationStart="258" routeId="3branchStation-509-P:S22l-S21l" tDSectionID="TC2_2" trackSequenceID="0" trainID="1001_0"/>
       <tDSectionOccupation occupationStart="858" routeId="3branchStation-509-P:S22l-S21l" tDSectionID="TC2_2" trackSequenceID="1" trainID="1003_0"/>
     </rTTPForSingleTDSection>
     <rTTPForSingleTDSection tDSectionId="TC2_3">
+      <tDSectionOccupation occupationStart="238" routeId="3branchStation-509-P:S22l-S21l" tDSectionID="TC2_3" trackSequenceID="0" trainID="1001_0"/>
       <tDSectionOccupation occupationStart="838" routeId="3branchStation-509-P:S22l-S21l" tDSectionID="TC2_3" trackSequenceID="2" trainID="1003_0"/>
     </rTTPForSingleTDSection>
     <rTTPForSingleTDSection tDSectionId="TC2_4">
+      <tDSectionOccupation occupationStart="222" routeId="3branchStation-317-P:St_S40l-S22l" tDSectionID="TC2_4" trackSequenceID="0" trainID="1001_0"/>
       <tDSectionOccupation occupationStart="822" routeId="3branchStation-357-P:St_S23l-S22l.1" tDSectionID="TC2_4" trackSequenceID="2" trainID="1003_0"/>
     </rTTPForSingleTDSection>
     <rTTPForSingleTDSection tDSectionId="TC2_5">
@@ -54,6 +71,15 @@
     </rTTPForSingleTDSection>
     <rTTPForSingleTDSection tDSectionId="TC2_9">
       <tDSectionOccupation occupationStart="663" routeId="3branchStation-771-P:S25l-St_S24l" tDSectionID="TC2_9" trackSequenceID="0" trainID="1003_0"/>
+    </rTTPForSingleTDSection>
+    <rTTPForSingleTDSection tDSectionId="TC4_1">
+      <tDSectionOccupation occupationStart="160" routeId="3branchStation-317-P:St_S40l-S22l" tDSectionID="TC4_1" trackSequenceID="0" trainID="1001_0"/>
+    </rTTPForSingleTDSection>
+    <rTTPForSingleTDSection tDSectionId="TC4_2">
+      <tDSectionOccupation occupationStart="92" routeId="3branchStation-329-P:St_S41l-St_S40l" tDSectionID="TC4_2" trackSequenceID="0" trainID="1001_0"/>
+    </rTTPForSingleTDSection>
+    <rTTPForSingleTDSection tDSectionId="TC4_3">
+      <tDSectionOccupation occupationStart="63" routeId="3branchStation-771-P:S25l-St_S41l" tDSectionID="TC4_3" trackSequenceID="0" trainID="1001_0"/>
     </rTTPForSingleTDSection>
   </rTTPInfrastructureView>
 

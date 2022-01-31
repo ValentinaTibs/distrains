@@ -59,22 +59,19 @@ int main (int argc, char *argv[]) {
 //	}
     
     // this conf should be put in a json
-    std::string fileRTT_anc = "RTTP.3branch.xml";//,  fileRTT_A, fileRTT_B;
+    std::string fileRTT_anc = "../../data/RTTP.3branch.xml";//,  fileRTT_A, fileRTT_B;
     RTTP RTT_anc = RTTP(fileRTT_anc);
     RTT_anc.printAll();
     
-    std::string fileRTT_A = "RTTP.3branch_A.xml";//,  fileRTT_A, fileRTT_B;
+    std::string fileRTT_A = "../../data/RTTP.3branch_A.xml";//,  fileRTT_A, fileRTT_B;
     RTTP RTT_A = RTTP(fileRTT_A);
     
     RTT_anc.merge(&RTT_A);
-    
     RTT_anc.printAll();
     
-
-//    RTT* RTT_anc = load_RTT(fileRTT_anc);
-//    RTT* RTT_A = load_RTT(fileRTT_A);
-//    RTT* RTT_B = load_RTT(fileRTT_B);
     
+    
+
 	printf("\nexecution Done\n");
 	return 0;
 }
