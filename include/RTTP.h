@@ -32,7 +32,7 @@ public:
 
 class rTTPForSingleTrain{
 public:
-    std::vector<tDSectionOccupation> tDSectionOccupations;
+    std::map<std::string, tDSectionOccupation> tDSectionOccupations;
     std::string journeyId;
     std::string trainId;
     
@@ -40,21 +40,21 @@ public:
         this->journeyId = _journeyId;
         this->trainId = _trainId;
     }
-    void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation){
-        tDSectionOccupations.push_back(_newtDSectionOccupation);
+    void addtDSectionOccupation(std::string tDSectionKey, tDSectionOccupation _newtDSectionOccupation){
+        tDSectionOccupations.insert(std::pair<std::string, tDSectionOccupation >(std::string(tDSectionKey),_newtDSectionOccupation));
     }
 };
 
 class rTTPForSingleTDSection{
 public:
-    std::vector<tDSectionOccupation> tDSectionOccupations;
+    std::map<std::string, tDSectionOccupation> tDSectionOccupations;
     std::string tDSectionId;
     
     rTTPForSingleTDSection(std::string _tDSectionId){
         this->tDSectionId = _tDSectionId;
     }
-    void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation){
-        tDSectionOccupations.push_back(_newtDSectionOccupation);
+    void addtDSectionOccupation(std::string tDSectionKey,tDSectionOccupation _newtDSectionOccupation){
+        tDSectionOccupations.insert(std::pair<std::string, tDSectionOccupation >(std::string(tDSectionKey),_newtDSectionOccupation));
     }
 };
 
@@ -99,8 +99,8 @@ public:
                 
                 tDSectionOccupation newtDSOcc(occupationStart,std::string(routeId),std::string(tDSectionID));
                 newtDSOcc.settrainSequenceID(trainSequenceID);
-                
-                newRTTPforSingleTrain.tDSectionOccupations.push_back(newtDSOcc);
+                // we assume here which is thhe key for a TDSectionOccupation from the train point of view
+                newRTTPforSingleTrain.addtDSectionOccupation(std::string(tDSectionID), newtDSOcc);
             }
             rTTPTrainView.insert(std::pair<std::string, rTTPForSingleTrain>(std::string(trainId),newRTTPforSingleTrain));
         }
@@ -135,8 +135,7 @@ public:
                 
                 tDSectionOccupation newtDSOcc(occupationStart,std::string(routeId),std::string(tDSectionID));
                 newtDSOcc.settrackSequenceID(trackSequenceID,std::string(trainID));
-                
-                newrTTPForSingleTDSection.tDSectionOccupations.push_back(newtDSOcc);
+                newrTTPForSingleTDSection.addtDSectionOccupation(std::string(trainID), newtDSOcc);
             }
             
             rTTPInfrastructureView.insert(std::pair<std::string, rTTPForSingleTDSection >(std::string(tDSectionId),newrTTPForSingleTDSection));
@@ -152,7 +151,7 @@ public:
         {
             printf("\n\n TRAIN --> %s \n",it->first.c_str());
             for (auto fr = it->second.tDSectionOccupations.begin(); fr != it->second.tDSectionOccupations.end();fr++){
-                printf("occupationStart=%d routeId=%s tDSectionID=%s trainSequenceID=%d \n",fr->occupationStart,fr->routeId.c_str(),fr->tDSectionID.c_str(),fr->trainSequenceID);
+                printf("occupationStart=%d routeId=%s tDSectionID=%s trainSequenceID=%d \n",fr->second.occupationStart,fr->second.routeId.c_str(),fr->second.tDSectionID.c_str(),fr->second.trainSequenceID);
             }
         }
         for (auto it = rTTPInfrastructureView.begin(); it != rTTPInfrastructureView.end(); it++)
@@ -160,7 +159,7 @@ public:
             printf("\n TRACK --> %s \n",it->first.c_str());
             for (auto fr = it->second.tDSectionOccupations.begin();
                  fr != it->second.tDSectionOccupations.end();fr++){
-                printf("occupationStart=%d routeId=%s tDSectionID=%s trackSequenceID=%d trainID=%s \n",fr->occupationStart,fr->routeId.c_str(),fr->tDSectionID.c_str(),fr->trackSequenceID,fr->trainID.c_str());
+                printf("occupationStart=%d routeId=%s tDSectionID=%s trackSequenceID=%d trainID=%s \n",fr->second.occupationStart,fr->second.routeId.c_str(),fr->second.tDSectionID.c_str(),fr->second.trackSequenceID,fr->second.trainID.c_str());
             }
         }
         
