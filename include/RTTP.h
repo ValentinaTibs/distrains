@@ -56,6 +56,7 @@ public:
     void addtDSectionOccupation(std::string tDSectionKey,tDSectionOccupation _newtDSectionOccupation){
         tDSectionOccupations.insert(std::pair<std::string, tDSectionOccupation >(std::string(tDSectionKey),_newtDSectionOccupation));
     }
+    
 };
 
 class RTTP{
@@ -66,6 +67,13 @@ public:
     // the key is the train ID trackSequenceID
     std::map<std::string, rTTPForSingleTDSection > rTTPInfrastructureView;
     
+    void addrTTPForSingleTrain(std::string _trainId,rTTPForSingleTrain newRTTPforSingleTrain ){
+        this->rTTPTrainView.insert(std::pair<std::string, rTTPForSingleTrain>(_trainId,newRTTPforSingleTrain));
+    }
+    
+    void addrTTPForSingleTDSection(std::string _tDSectionId, rTTPForSingleTDSection newrTTPForSingleTDSection){
+        this->rTTPInfrastructureView.insert(std::pair<std::string, rTTPForSingleTDSection >(_tDSectionId,newrTTPForSingleTDSection));
+    }
     
     RTTP(std::string filename){
        
@@ -102,7 +110,7 @@ public:
                 // we assume here which is thhe key for a TDSectionOccupation from the train point of view
                 newRTTPforSingleTrain.addtDSectionOccupation(std::string(tDSectionID), newtDSOcc);
             }
-            rTTPTrainView.insert(std::pair<std::string, rTTPForSingleTrain>(std::string(trainId),newRTTPforSingleTrain));
+            this->addrTTPForSingleTrain(std::string(trainId),newRTTPforSingleTrain);
         }
             
         ele = doc.FirstChildElement( "rTTP" )->FirstChildElement("rTTPInfrastructureView")->FirstChildElement();
@@ -137,8 +145,7 @@ public:
                 newtDSOcc.settrackSequenceID(trackSequenceID,std::string(trainID));
                 newrTTPForSingleTDSection.addtDSectionOccupation(std::string(trainID), newtDSOcc);
             }
-            
-            rTTPInfrastructureView.insert(std::pair<std::string, rTTPForSingleTDSection >(std::string(tDSectionId),newrTTPForSingleTDSection));
+            this->addrTTPForSingleTDSection(std::string(tDSectionId),newrTTPForSingleTDSection);
         }
     }
 
