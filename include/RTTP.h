@@ -16,8 +16,10 @@ public:
     int occupationStart;
     std::string routeId;
     std::string tDSectionID;
+    std::string trainID;
     int trainSequenceID;
     int trackSequenceID;
+    
     
     tDSectionOccupation(int _occupationStart,std::string _routeId,std::string _tDSectionID){
         this->occupationStart = _occupationStart;
@@ -25,7 +27,7 @@ public:
         this->tDSectionID = _tDSectionID;
     }
     void settrainSequenceID (int _trainSequenceID){this->trainSequenceID = _trainSequenceID;}
-    void settrackSequenceID (int _trackSequenceID){this->trackSequenceID = _trackSequenceID;}
+    void settrackSequenceID (int _trackSequenceID,std::string _trainID){this->trackSequenceID = _trackSequenceID; this->trainID = _trainID;}
 };
 
 class rTTPForSingleTrain{
@@ -43,13 +45,26 @@ public:
     }
 };
 
+class rTTPForSingleTDSection{
+public:
+    std::vector<tDSectionOccupation> tDSectionOccupations;
+    std::string tDSectionId;
+    
+    rTTPForSingleTDSection(std::string _tDSectionId){
+        this->tDSectionId = _tDSectionId;
+    }
+    void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation){
+        tDSectionOccupations.push_back(_newtDSectionOccupation);
+    }
+};
+
 class RTTP{
 public:
     
     // the key is the train ID
     std::map<std::string, rTTPForSingleTrain> rTTPTrainView;
     // the key is the train ID trackSequenceID
-    std::map<std::string, std::vector<tDSectionOccupation> > rTTPInfrastructureView;
+    std::map<std::string, rTTPForSingleTDSection > rTTPInfrastructureView;
     
     
     RTTP(std::string filename){
@@ -89,12 +104,14 @@ public:
             }
             rTTPTrainView.insert(std::pair<std::string, rTTPForSingleTrain>(std::string(trainId),newRTTPforSingleTrain));
         }
-        
+            
         ele = doc.FirstChildElement( "rTTP" )->FirstChildElement("rTTPInfrastructureView")->FirstChildElement();
         
         for( ; ele; ele = ele->NextSibling() ){
             const char* tDSectionId = "failed";
+            
             tinyxml2::XMLError queryResult1 = ele->ToElement()->QueryStringAttribute("tDSectionId", &tDSectionId);
+            rTTPForSingleTDSection newrTTPForSingleTDSection(tDSectionId);
             
             std::vector<tDSectionOccupation> tDSectionOccupations;
             
@@ -105,19 +122,24 @@ public:
                 int trackSequenceID;
                 const char* routeId = "failed";
                 const char* tDSectionID = "failed";
+                const char* trainID = "failed";
+                
                 
                 //2do put some safety check here on the queryResults values
                 tinyxml2::XMLError queryResult1 = single_ele->ToElement()->QueryIntAttribute("occupationStart", &(occupationStart));
                 tinyxml2::XMLError queryResult2 = single_ele->ToElement()->QueryIntAttribute("trackSequenceID", &(trackSequenceID));
                 tinyxml2::XMLError queryResult3 = single_ele->ToElement()->QueryStringAttribute("routeId", &(routeId));
                 tinyxml2::XMLError queryResult4 = single_ele->ToElement()->QueryStringAttribute("tDSectionID", &(tDSectionID));
+                tinyxml2::XMLError queryResult5 = single_ele->ToElement()->QueryStringAttribute("trainID", &(trainID));
+                
                 
                 tDSectionOccupation newtDSOcc(occupationStart,std::string(routeId),std::string(tDSectionID));
-                newtDSOcc.settrackSequenceID(trackSequenceID);
+                newtDSOcc.settrackSequenceID(trackSequenceID,std::string(trainID));
                 
-                tDSectionOccupations.push_back(newtDSOcc);
+                newrTTPForSingleTDSection.tDSectionOccupations.push_back(newtDSOcc);
             }
-            rTTPInfrastructureView.insert(std::pair<std::string, std::vector<tDSectionOccupation> >(std::string(tDSectionId),tDSectionOccupations));
+            
+            rTTPInfrastructureView.insert(std::pair<std::string, rTTPForSingleTDSection >(std::string(tDSectionId),newrTTPForSingleTDSection));
         }
     }
 
@@ -136,15 +158,21 @@ public:
         for (auto it = rTTPInfrastructureView.begin(); it != rTTPInfrastructureView.end(); it++)
         {
             printf("\n TRACK --> %s \n",it->first.c_str());
-            for (auto fr = it->second.begin(); fr != it->second.end();fr++){
-                printf("occupationStart=%d routeId=%s tDSectionID=%s trackSequenceID=%d \n",fr->occupationStart,fr->routeId.c_str(),fr->tDSectionID.c_str(),fr->trackSequenceID);
+            for (auto fr = it->second.tDSectionOccupations.begin();
+                 fr != it->second.tDSectionOccupations.end();fr++){
+                printf("occupationStart=%d routeId=%s tDSectionID=%s trackSequenceID=%d trainID=%s \n",fr->occupationStart,fr->routeId.c_str(),fr->tDSectionID.c_str(),fr->trackSequenceID,fr->trainID.c_str());
             }
         }
+        
+        printf("=================== \n");
     }
     
     //2do
     // implement here a method to check if 2 rttp are the same
     
+    //2do
+    // implement here a method to dump a rttp in a XML file
+
     
     enum errorCode{
         MERGE_SUCCESS,
@@ -153,6 +181,8 @@ public:
     int merge(RTTP* input){
         errorCode retval=MERGE_SUCCESS;
         
+        
+        // for all elements in the
         for(auto it = input->rTTPTrainView.begin(); it != input->rTTPTrainView.end(); it++){
             
             if( this->rTTPTrainView.find(it->first) == this->rTTPTrainView.end() )
@@ -166,8 +196,8 @@ public:
             if( this->rTTPInfrastructureView.find(it->first) == this->rTTPInfrastructureView.end() )
             {
                 // 2do - this INSERT is not what it should be done - but instead we have to think on a merge data structure - in this case data presents in the ANC but not in the INPUT might be overwritten - or maybe this is just needed in cases of key that is found but has a different content
-                auto merged_val = it->second  ;
-                this->rTTPInfrastructureView.insert(std::pair<std::string, std::vector<tDSectionOccupation> >(std::string(it->first),merged_val));
+                this->rTTPInfrastructureView.insert(std::pair<std::string,
+                    rTTPForSingleTDSection>(std::string(it->first),it->second));
             }
         }
         return retval;
