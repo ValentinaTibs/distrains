@@ -3,10 +3,11 @@
 #include <chrono>  // for high_resolution_clock
 
 #include "tinyxml2.h"
+#include "xxhash.h"
 #include "RTTP.h"
 
-
 static int num_trains = 3;
+XXH64_hash_t app_seed = 3;
 
 void lifecycle(void){
 	std::this_thread::sleep_for(std::chrono::milliseconds(3));
@@ -21,9 +22,7 @@ void broadcast(int idx, train* trains){
     return;
 }
 
-
-
-int main (int argc, char *argv[]) { 
+int main (int argc, char *argv[]) {
 
 //	bool not_done = true;
 //    std::vector<train> trains;
@@ -66,7 +65,7 @@ int main (int argc, char *argv[]) {
     std::string fileRTT_A = "../../data/RTTP.3branch_A.xml";//,  fileRTT_A, fileRTT_B;
     RTTP RTT_A = RTTP(fileRTT_A);
     
-    RTT_anc.merge(&RTT_A);
+    merge(&RTT_anc, &RTT_A);
     RTT_anc.printAll();
     
     
