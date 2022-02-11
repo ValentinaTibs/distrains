@@ -16,19 +16,24 @@ tDSectionOccupation::tDSectionOccupation(int _occupationStart,std::string _route
 void tDSectionOccupation::settrainSequenceID (int _trainSequenceID){this->trainSequenceID = _trainSequenceID;}
 void tDSectionOccupation::settrackSequenceID (int _trackSequenceID,std::string _trainID){this->trackSequenceID = _trackSequenceID; this->trainID = _trainID;}
 
+std::string tDSectionOccupation::makeKey(void){
+    return std::to_string(this->occupationStart).append(this->trainID);
+}
 
 rTTPForSingleTrain::rTTPForSingleTrain(std::string _journeyId, std::string _trainId ){
     this->journeyId = _journeyId;
     this->trainId = _trainId;
 }
-void rTTPForSingleTrain::addtDSectionOccupation(std::string tDSectionKey, tDSectionOccupation _newtDSectionOccupation){
+void rTTPForSingleTrain::addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation){
+    std::string tDSectionKey = _newtDSectionOccupation.makeKey();
     tDSectionOccupations.insert(std::pair<tdSecKey, tDSectionOccupation >(hash_string(tDSectionKey.c_str(),app_seed),_newtDSectionOccupation));
 }
 
 rTTPForSingleTDSection::rTTPForSingleTDSection(std::string _tDSectionId){
     this->tDSectionId = _tDSectionId;
 }
-void rTTPForSingleTDSection::addtDSectionOccupation(std::string tDSectionKey,tDSectionOccupation _newtDSectionOccupation){
+void rTTPForSingleTDSection::addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation){
+    std::string tDSectionKey = _newtDSectionOccupation.makeKey();
     tDSectionOccupations.insert(std::pair<tdSecKey, tDSectionOccupation >(hash_string(tDSectionKey.c_str(),app_seed),_newtDSectionOccupation));
 }
 
@@ -61,7 +66,7 @@ RTTP::RTTP(std::string filename){
         tinyxml2::XMLNode* single_ele = ele->FirstChildElement();
         for( ; single_ele; single_ele = single_ele->NextSibling() ){
             int occupationStart;
-            int trainSequenceID;
+            int trainSequenceID = -1;
             const char* routeId = "failed";
             const char* tDSectionID = "failed";
             
@@ -74,7 +79,7 @@ RTTP::RTTP(std::string filename){
             tDSectionOccupation newtDSOcc(occupationStart,std::string(routeId),std::string(tDSectionID));
             newtDSOcc.settrainSequenceID(trainSequenceID);
             // we assume here which is thhe key for a TDSectionOccupation from the train point of view
-            newRTTPforSingleTrain.addtDSectionOccupation(std::string(tDSectionID), newtDSOcc);
+            newRTTPforSingleTrain.addtDSectionOccupation(newtDSOcc);
         }
         this->addrTTPForSingleTrain(std::string(trainId),newRTTPforSingleTrain);
     }
@@ -89,8 +94,8 @@ RTTP::RTTP(std::string filename){
         
         tinyxml2::XMLNode* single_ele = ele->FirstChildElement();
         for( ; single_ele; single_ele = single_ele->NextSibling() ){
-            int occupationStart;
-            int trackSequenceID;
+            int occupationStart = -1;
+            int trackSequenceID = -1;
             const char* routeId = "failed";
             const char* tDSectionID = "failed";
             const char* trainID = "failed";
@@ -106,7 +111,7 @@ RTTP::RTTP(std::string filename){
             
             tDSectionOccupation newtDSOcc(occupationStart,std::string(routeId),std::string(tDSectionID));
             newtDSOcc.settrackSequenceID(trackSequenceID,std::string(trainID));
-            newrTTPForSingleTDSection.addtDSectionOccupation(std::string(trainID), newtDSOcc);
+            newrTTPForSingleTDSection.addtDSectionOccupation(newtDSOcc);
         }
         this->addrTTPForSingleTDSection(std::string(tDSectionId),newrTTPForSingleTDSection);
     }
@@ -141,8 +146,13 @@ int merge(RTTP* ANC, RTTP* input){
         // THE ELEMENT IS NOT PRESENT IN THE ANCESTOR - search by key and add it
         if( ANC->rTTPTrainView.find(it->first) == ANC->rTTPTrainView.end() )
         {
+            // can be not presence because some of the element that constitute the key have changed
+            // so we must first check if something between the two keys hasn't changed
+            
             ANC->addrTTPForSingleTrain(it->first,it->second);
         }
+        
+        
 //        else{
 //            for(auto fr = it->second.tDSectionOccupations.begin(); fr != input->second.tDSectionOccupations.end(); fr++){
 //

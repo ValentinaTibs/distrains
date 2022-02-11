@@ -24,6 +24,7 @@ public:
     tDSectionOccupation(int _occupationStart,std::string _routeId,std::string _tDSectionID);
     void settrainSequenceID (int _trainSequenceID);
     void settrackSequenceID (int _trackSequenceID,std::string _trainID);
+    std::string makeKey(void);
 };
 
 typedef XXH64_hash_t tdSecKey;
@@ -36,7 +37,7 @@ public:
     std::string trainId;
     
     rTTPForSingleTrain(std::string _journeyId, std::string _trainId );
-    void addtDSectionOccupation(std::string tDSectionKey, tDSectionOccupation _newtDSectionOccupation);
+    void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation);
 };
 
 class rTTPForSingleTDSection{
@@ -45,7 +46,7 @@ public:
     std::string tDSectionId;
     
     rTTPForSingleTDSection(std::string _tDSectionId);
-    void addtDSectionOccupation(std::string tDSectionKey,tDSectionOccupation _newtDSectionOccupation);
+    void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation);
     
 };
 
@@ -76,6 +77,8 @@ public:
 
 enum errorCode{
     MERGE_SUCCESS,
+    MISMATCH,
+    
 };
 
 int merge(RTTP* ANC, RTTP* input);
