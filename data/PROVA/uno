@@ -1,0 +1,5 @@
+<rTTPForSingleTrain journeyId="I:BR_S26l-BL_S20l--a11-a6.St___CL" trainId="1001_0">
+  <tDSectionOccupation occupationStart="0" routeId="3branchStation-9-P:BR_S26l-S25l" tDSectionID="TC2_11" trainID="1001_0" trainSequenceID="0"/>
+  <tDSectionOccupation occupationStart="30" routeId="3branchStation-771-P:S25l-St_S41l" tDSectionID="TC2_10" trainID="1001_0" trainSequenceID="1"/>  
+  <tDSectionOccupation occupationStart="50" routeId="3branchStation-771-P:S25l-St_S41l" tDSectionID="TC2_10" trainID="1001_0" trainSequenceID="1"/>
+</rTTPForSingleTrain>

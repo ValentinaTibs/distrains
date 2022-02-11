@@ -40,27 +40,15 @@ public:
     void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation);
 };
 
-class rTTPForSingleTDSection{
-public:
-    std::map<tdSecKey, tDSectionOccupation> tDSectionOccupations;
-    std::string tDSectionId;
-    
-    rTTPForSingleTDSection(std::string _tDSectionId);
-    void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation);
-    
-};
+
 
 class RTTP{
 public:
     
     // the key is the train ID
     std::map<std::string, rTTPForSingleTrain> rTTPTrainView;
-    // the key is the train ID trackSequenceID
-    std::map<std::string, rTTPForSingleTDSection > rTTPInfrastructureView;
     
     void addrTTPForSingleTrain(std::string _trainId,rTTPForSingleTrain newRTTPforSingleTrain );
-    void addrTTPForSingleTDSection(std::string _tDSectionId, rTTPForSingleTDSection newrTTPForSingleTDSection);
-    
     void checkRTTP();
     
     RTTP(std::string filename);

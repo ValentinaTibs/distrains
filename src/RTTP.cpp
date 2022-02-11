@@ -29,21 +29,10 @@ void rTTPForSingleTrain::addtDSectionOccupation(tDSectionOccupation _newtDSectio
     tDSectionOccupations.insert(std::pair<tdSecKey, tDSectionOccupation >(hash_string(tDSectionKey.c_str(),app_seed),_newtDSectionOccupation));
 }
 
-rTTPForSingleTDSection::rTTPForSingleTDSection(std::string _tDSectionId){
-    this->tDSectionId = _tDSectionId;
-}
-void rTTPForSingleTDSection::addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation){
-    std::string tDSectionKey = _newtDSectionOccupation.makeKey();
-    tDSectionOccupations.insert(std::pair<tdSecKey, tDSectionOccupation >(hash_string(tDSectionKey.c_str(),app_seed),_newtDSectionOccupation));
-}
 
 
 void RTTP::addrTTPForSingleTrain(std::string _trainId,rTTPForSingleTrain newRTTPforSingleTrain ){
     this->rTTPTrainView.insert(std::pair<std::string, rTTPForSingleTrain>(_trainId,newRTTPforSingleTrain));
-}
-
-void RTTP::addrTTPForSingleTDSection(std::string _tDSectionId, rTTPForSingleTDSection newrTTPForSingleTDSection){
-    this->rTTPInfrastructureView.insert(std::pair<std::string, rTTPForSingleTDSection >(_tDSectionId,newrTTPForSingleTDSection));
 }
         
 RTTP::RTTP(std::string filename){
@@ -84,37 +73,7 @@ RTTP::RTTP(std::string filename){
         this->addrTTPForSingleTrain(std::string(trainId),newRTTPforSingleTrain);
     }
         
-    ele = doc.FirstChildElement( "rTTP" )->FirstChildElement("rTTPInfrastructureView")->FirstChildElement();
     
-    for( ; ele; ele = ele->NextSibling() ){
-        const char* tDSectionId = "failed";
-        
-        tinyxml2::XMLError queryResult1 = ele->ToElement()->QueryStringAttribute("tDSectionId", &tDSectionId);
-        rTTPForSingleTDSection newrTTPForSingleTDSection(tDSectionId);
-        
-        tinyxml2::XMLNode* single_ele = ele->FirstChildElement();
-        for( ; single_ele; single_ele = single_ele->NextSibling() ){
-            int occupationStart = -1;
-            int trackSequenceID = -1;
-            const char* routeId = "failed";
-            const char* tDSectionID = "failed";
-            const char* trainID = "failed";
-            
-            
-            //2do put some safety check here on the queryResults values
-            tinyxml2::XMLError queryResult1 = single_ele->ToElement()->QueryIntAttribute("occupationStart", &(occupationStart));
-            tinyxml2::XMLError queryResult2 = single_ele->ToElement()->QueryIntAttribute("trackSequenceID", &(trackSequenceID));
-            tinyxml2::XMLError queryResult3 = single_ele->ToElement()->QueryStringAttribute("routeId", &(routeId));
-            tinyxml2::XMLError queryResult4 = single_ele->ToElement()->QueryStringAttribute("tDSectionID", &(tDSectionID));
-            tinyxml2::XMLError queryResult5 = single_ele->ToElement()->QueryStringAttribute("trainID", &(trainID));
-            
-            
-            tDSectionOccupation newtDSOcc(occupationStart,std::string(routeId),std::string(tDSectionID));
-            newtDSOcc.settrackSequenceID(trackSequenceID,std::string(trainID));
-            newrTTPForSingleTDSection.addtDSectionOccupation(newtDSOcc);
-        }
-        this->addrTTPForSingleTDSection(std::string(tDSectionId),newrTTPForSingleTDSection);
-    }
 }
 void RTTP::printAll(void){
     for (auto it = rTTPTrainView.begin(); it != rTTPTrainView.end(); it++)
@@ -159,17 +118,6 @@ int merge(RTTP* ANC, RTTP* input){
 //        }
     }
     
-    // for all elements in the InfrastructureView
-    for(auto it = input->rTTPInfrastructureView.begin(); it != input->rTTPInfrastructureView.end(); it++){
-        
-        // THE ELEMENT IS NOT PRESENT IN THE ANCESTOR
-        if( ANC->rTTPInfrastructureView.find(it->first) == ANC->rTTPInfrastructureView.end() )
-        {
-            ANC->addrTTPForSingleTDSection(it->first, it->second);
-        }
-        // 2do - this INSERT is not what it should be done - but instead we have to think on a merge data structure - in this case data presents in the ANC but not in the INPUT might be overwritten - or maybe this is just needed in cases of key that is found but has a different content
-
-    }
     return retval;
 }
 
