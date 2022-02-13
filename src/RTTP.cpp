@@ -7,6 +7,7 @@
 
 #include "RTTP.h"
 #include "tinyxml2.h"
+#include <vector>
 
 tDSectionOccupation::tDSectionOccupation(int _occupationStart,std::string _routeId,std::string _tDSectionID){
     this->occupationStart = _occupationStart;
@@ -14,10 +15,9 @@ tDSectionOccupation::tDSectionOccupation(int _occupationStart,std::string _route
     this->tDSectionID = _tDSectionID;
 }
 void tDSectionOccupation::settrainSequenceID (int _trainSequenceID){this->trainSequenceID = _trainSequenceID;}
-void tDSectionOccupation::settrackSequenceID (int _trackSequenceID,std::string _trainID){this->trackSequenceID = _trackSequenceID; this->trainID = _trainID;}
 
 std::string tDSectionOccupation::makeKey(void){
-    return std::to_string(this->occupationStart).append(this->trainID);
+    return std::to_string(this->occupationStart);
 }
 
 rTTPForSingleTrain::rTTPForSingleTrain(std::string _journeyId, std::string _trainId ){
@@ -83,18 +83,107 @@ void RTTP::printAll(void){
             printf("occupationStart=%d routeId=%s tDSectionID=%s trainSequenceID=%d \n",fr->second.occupationStart,fr->second.routeId.c_str(),fr->second.tDSectionID.c_str(),fr->second.trainSequenceID);
         }
     }
-    for (auto it = rTTPInfrastructureView.begin(); it != rTTPInfrastructureView.end(); it++)
-    {
-        printf("\n TRACK --> %s \n",it->first.c_str());
-        for (auto fr = it->second.tDSectionOccupations.begin();
-             fr != it->second.tDSectionOccupations.end();fr++){
-            printf("occupationStart=%d routeId=%s tDSectionID=%s trackSequenceID=%d trainID=%s \n",fr->second.occupationStart,fr->second.routeId.c_str(),fr->second.tDSectionID.c_str(),fr->second.trackSequenceID,fr->second.trainID.c_str());
-        }
-    }
     
     printf("=================== \n");
 }
 
+void RTTP::dump(std::string filename){
+    FILE *fp;
+    
+    if((fp=fopen(filename.c_str(), "w+"))==NULL) {
+        printf("Error in opening file");
+        return;
+    }
+    
+    std::map<std::string,std::vector<tDSectionOccupation> > rTTPInfrastructureView;
+    
+    
+    for (auto it = rTTPTrainView.begin(); it != rTTPTrainView.end(); it++)
+    {
+        for (auto fr = it->second.tDSectionOccupations.begin(); fr != it->second.tDSectionOccupations.end();fr++)
+        {
+            
+            // se non c'è l'elemento con chiave fr->second.tDSectionID aggiungerlo
+            auto found_key = rTTPInfrastructureView.find(fr->second.tDSectionID);
+            if(found_key == rTTPInfrastructureView.end()){
+                std::string new_key = fr->second.tDSectionID;
+                rTTPInfrastructureView.insert(std::pair<std::string, std::vector<tDSectionOccupation> > ( new_key,std::vector<tDSectionOccupation>()));
+            }
+            tDSectionOccupation new_one_elem(fr->second.occupationStart,fr->second.routeId,fr->second.tDSectionID);
+            new_one_elem.trainID = it->second.trainId;
+            rTTPInfrastructureView.at(fr->second.tDSectionID).push_back(new_one_elem);
+        }
+    }
+    
+    
+    fprintf(fp,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n");
+
+    tinyxml2::XMLPrinter printer( fp );
+    printer.OpenElement( "rTTP" );
+    printer.OpenElement( "rTTPTrainView" );
+
+    for (auto it = rTTPTrainView.begin(); it != rTTPTrainView.end(); it++)
+    {
+
+        printer.OpenElement( "rTTPForSingleTrain" );
+        printer.PushAttribute( "journeyId", it->second.journeyId.c_str() );
+        printer.PushAttribute( "trainId", it->second.trainId.c_str() );
+
+        int count = 0;
+        for (auto fr = it->second.tDSectionOccupations.begin(); fr != it->second.tDSectionOccupations.end();fr++){
+
+            printer.OpenElement( "tDSectionOccupation" );
+            printer.PushAttribute( "occupationStart", std::to_string(fr->second.occupationStart).c_str() );
+            printer.PushAttribute( "routeId", fr->second.routeId.c_str() );
+            printer.PushAttribute( "tDSectionID", fr->second.tDSectionID.c_str() );
+            printer.PushAttribute( "trainID", it->second.trainId.c_str() );
+            printer.PushAttribute( "trainSequenceID", std::to_string(count).c_str());
+            count++;
+            //rTTPForSingleTrain
+            printer.CloseElement();
+        }
+
+        //rTTPForSingleTrain
+        printer.CloseElement();
+    }
+    
+    //rTTPTrainView
+    printer.CloseElement();
+    fprintf(fp,"\n");
+
+    
+    printer.OpenElement( "rTTPInfrastructureView" );
+    for (auto it = rTTPInfrastructureView.begin(); it != rTTPInfrastructureView.end(); it++)
+    {
+        printer.OpenElement( "rTTPForSingleTDSection" );
+        printer.PushAttribute( "tDSectionId", it->first.c_str() );
+
+        int count = 0;
+        for (auto fr = it->second.begin(); fr != it->second.end();fr++){
+            printer.OpenElement( "tDSectionOccupation" );
+            printer.PushAttribute( "occupationStart", std::to_string(fr->occupationStart).c_str());
+            printer.PushAttribute( "routeId", fr->routeId.c_str());
+            printer.PushAttribute( "tDSectionID", fr->tDSectionID.c_str());
+            printer.PushAttribute( "trackSequenceID", std::to_string(count).c_str());
+            printer.PushAttribute( "trainID", fr->trainID.c_str());
+
+            count++;
+
+            printer.CloseElement();
+        }
+        
+        //rTTPForSingleTDSection
+        printer.CloseElement();
+    }
+    
+    //rTTPInfrastructureView
+    printer.CloseElement();
+
+    //rTTP
+    printer.CloseElement();
+    
+    fclose(fp);
+};
 
 int merge(RTTP* ANC, RTTP* input){
     errorCode retval=MERGE_SUCCESS;

@@ -16,14 +16,11 @@ public:
     int occupationStart;
     std::string routeId;
     std::string tDSectionID;
-    std::string trainID;
     int trainSequenceID;
-    int trackSequenceID;
-    
-    
+    std::string trainID = "";
+        
     tDSectionOccupation(int _occupationStart,std::string _routeId,std::string _tDSectionID);
     void settrainSequenceID (int _trainSequenceID);
-    void settrackSequenceID (int _trackSequenceID,std::string _trainID);
     std::string makeKey(void);
 };
 
@@ -54,13 +51,14 @@ public:
     RTTP(std::string filename);
     
     void printAll(void);
+    void dump(std::string);
+    
     //2do
     // implement here a method to check if 2 rttp are the same
     
     //2do
     // implement here a method to dump a rttp in a XML file
-
-    
+ 
 };
 
 enum errorCode{

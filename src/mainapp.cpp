@@ -68,7 +68,7 @@ int main (int argc, char *argv[]) {
     merge(&RTT_anc, &RTT_A);
     RTT_anc.printAll();
     
-    
+    RTT_anc.dump("../../data/RTTP.result.xml");
     
 
 	printf("\nexecution Done\n");
