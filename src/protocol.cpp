@@ -18,4 +18,3 @@ void load_version(void){
 void load_history(void){
     
 }
-

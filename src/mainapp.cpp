@@ -25,9 +25,6 @@ void broadcast(int idx, train* trains){
     return;
 }
 
-
-
-
 int main (int argc, char *argv[]) {
 
     // this conf should be put in a json: UserName - ancesto - history
@@ -35,16 +32,15 @@ int main (int argc, char *argv[]) {
     // ********** load the ancestor  **********
     std::string fileRTT_anc = "../../data/base/RTTP.3branch.xml";
     RTTP RTT_anc = RTTP(fileRTT_anc);
-    
-    
+
     std::string fileHIST_anc = "../../data/base/HIST.3branch.xml";
-    
+
     // ********** obtain a new version **********
     //RTTP RTT_vers = perturbate_RTTP();
     
     //RTTP_diff diff = diff(&RTT_anc, &RTT_vers);
     
-    create_version();
+    //create_version();
     
 //    RTT_anc.printAll();
 //
@@ -52,10 +48,10 @@ int main (int argc, char *argv[]) {
 //    RTTP RTT_A = RTTP(fileRTT_A);
 //
 //    merge(&RTT_anc, &RTT_A);
-//    RTT_anc.printAll();
-//
-//    RTT_anc.dump("../../data/base/RTTP.result.xml");
-//
+    RTT_anc.printAll();
+
+    RTT_anc.dump("../../data/base/RTTP.result.xml");
+
 
 	printf("\nexecution Done\n");
 	return 0;
