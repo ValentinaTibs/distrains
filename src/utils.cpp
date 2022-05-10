@@ -14,3 +14,5 @@ XXH64_hash_t hash_string(const char* _string, XXH64_hash_t seed){
     size_t length = (_string == NULL) ? 0 : strlen(_string);
     return XXH64((void*)_string, length, seed);
 }
+
+

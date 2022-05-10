@@ -9,6 +9,7 @@
 #include "tinyxml2.h"
 #include <vector>
 
+
 tDSectionOccupation::tDSectionOccupation(int _occupationStart,std::string _routeId,std::string _tDSectionID, std::string _journeyId, std::string _trainId){
     this->occupationStart = _occupationStart;
     this->routeId = _routeId;
@@ -17,15 +18,74 @@ tDSectionOccupation::tDSectionOccupation(int _occupationStart,std::string _route
     this->trainId = _trainId;
 }
 
-void tDSectionOccupation::settrainSequenceID (int _trainSequenceID){this->trainSequenceID = _trainSequenceID;}
+void tDSectionOccupation::settrainSequenceID (int _trainSequenceID){
+    this->trainSequenceID = _trainSequenceID;
+}
 
-std::string tDSectionOccupation::makeKey(void){
-    return this->trainId + std::to_string(this->occupationStart);}
+tdSecKey tDSectionOccupation::makeKey(void){
+    //(hash_string(tDSectionKey.c_str(),app_seed)
+    return this->trainId + this->tDSectionID;
+}
 
 void RTTP::addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation){
-    std::string tDSectionKey = _newtDSectionOccupation.makeKey();
-    tDSectionOccupations.insert(std::pair<tdSecKey, tDSectionOccupation >(hash_string(tDSectionKey.c_str(),app_seed),_newtDSectionOccupation));
+    tdSecKey tDSectionKey = _newtDSectionOccupation.makeKey();
+    RTTP_member new_RTTP_member(tDSectionKey,  _newtDSectionOccupation);
+    tDSectionOccupations.push_back(new_RTTP_member);
 }
+
+// 2do HERE a better find done throught a better data structure could boost performances
+RTTP_member* RTTP::find_tDSectionOccupation(RTTP_member _tDSO){
+    for(auto it = tDSectionOccupations.begin(); it != tDSectionOccupations.end();it++){
+        if( *it == _tDSO ){
+            return &(*it);
+        }
+    }
+    return nullptr ;
+}
+
+void RTTP_diff::add_op(op_type _op,tDSectionOccupation _new_val){
+    ops.push_back(RTTP_diff_op(_op,_new_val));
+};
+
+
+void RTTP_diff::add_op(op_type _op,tDSectionOccupation _old_val, tDSectionOccupation _new_val){
+    ops.push_back(RTTP_diff_op(_op,_old_val,_new_val));
+};
+
+RTTP_diff diff(RTTP* L, RTTP* R){
+
+    RTTP_diff results;
+
+    for(auto it = L->tDSectionOccupations.begin(); it != L->tDSectionOccupations.end();it++){
+        auto found = R->find_tDSectionOccupation(*it);
+        if (found != nullptr) {
+            if(found->cnt.second==it->cnt.second){
+                printf(" FOUND %s ", it->cnt.first.c_str());
+            }
+            else{
+                printf(" UPDATED %s ", it->cnt.first.c_str());
+                results.add_op(op_type::UPDATE,found->cnt.second,it->cnt.second);
+            }
+        } else {
+            printf(" DELETED %s ", it->cnt.first.c_str());
+            results.add_op(op_type::DEL,it->cnt.second);
+        }
+    }
+    
+    printf("\n");
+    
+    for(auto it = R->tDSectionOccupations.begin(); it != R->tDSectionOccupations.end();it++){
+        auto found = L->find_tDSectionOccupation(*it);
+        if (found != nullptr) {
+            printf(" FOUND %s ", it->cnt.first.c_str());
+        } else {
+            printf(" ADDED %s ", it->cnt.first.c_str());
+            results.add_op(op_type::ADD,found->cnt.second);
+        }
+    }
+    return results;
+
+};
 
 RTTP::RTTP(std::string filename){
 
@@ -33,6 +93,8 @@ RTTP::RTTP(std::string filename){
     tinyxml2::XMLDocument doc;
     doc.LoadFile( filename.c_str() );
 
+    // 2do metterci un check che si assicuri l'esistenza sia di rTTP che di rTTPTrainView
+    // e che altrimenti ritorni un errore di file malformato
     tinyxml2::XMLNode* ele = doc.FirstChildElement( "rTTP" )->FirstChildElement("rTTPTrainView")->FirstChildElement();
 
     for( ; ele; ele = ele->NextSibling() ){
@@ -83,9 +145,9 @@ RTTP::RTTP(std::string filename){
 void RTTP::printAll(void){
     for (auto it = tDSectionOccupations.begin(); it != tDSectionOccupations.end(); it++){
 
-        printf("\n\n TRAIN --> %s journeyID ---> %s \n",it->second.trainId.c_str(),it->second.journeyId.c_str());
+        printf("\n\n TRAIN --> %s journeyID ---> %s \n",it->cnt.second.trainId.c_str(),it->cnt.second.journeyId.c_str());
         
-        printf("KEY=%d occupationStart=%d routeId=%s tDSectionID=%s trainSequenceID=%d \n",it->first, it->second.occupationStart,it->second.routeId.c_str(),it->second.tDSectionID.c_str(),it->second.trainSequenceID);
+        printf("KEY=%s occupationStart=%d routeId=%s tDSectionID=%s trainSequenceID=%d \n",it->cnt.first.c_str(), it->cnt.second.occupationStart,it->cnt.second.routeId.c_str(),it->cnt.second.tDSectionID.c_str(),it->cnt.second.trainSequenceID);
     }
 
     printf("=================== \n");
@@ -101,18 +163,18 @@ void RTTP::dump(std::string filename){
 
     std::map<std::string,std::vector<tDSectionOccupation> > rTTPInfrastructureView;
 
+    //  2do WE MUST SORT tDSectionOccupations at first
     for (auto it = tDSectionOccupations.begin(); it != tDSectionOccupations.end(); it++)
     {
             // se non c'è l'elemento con chiave fr->second.tDSectionID aggiungerlo
-            auto found_key = rTTPInfrastructureView.find(it->second.tDSectionID);
+            auto found_key = rTTPInfrastructureView.find(it->cnt.second.tDSectionID);
             if(found_key == rTTPInfrastructureView.end()){
-                std::string new_key = it->second.tDSectionID;
+                std::string new_key = it->cnt.second.tDSectionID;
                 rTTPInfrastructureView.insert(std::pair<std::string, std::vector<tDSectionOccupation> > ( new_key,std::vector<tDSectionOccupation>()));
             }
-            tDSectionOccupation new_one_elem(it->second.occupationStart,it->second.routeId,it->second.tDSectionID,it->second.journeyId,it->second.trainId);
-            new_one_elem.trainId = it->second.trainId;
-            rTTPInfrastructureView.at(it->second.tDSectionID).push_back(new_one_elem);
-
+            tDSectionOccupation new_one_elem(it->cnt.second.occupationStart,it->cnt.second.routeId,it->cnt.second.tDSectionID,it->cnt.second.journeyId,it->cnt.second.trainId);
+            new_one_elem.trainId = it->cnt.second.trainId;
+            rTTPInfrastructureView.at(it->cnt.second.tDSectionID).push_back(new_one_elem);
     }
 
     fprintf(fp,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n");
@@ -126,7 +188,7 @@ void RTTP::dump(std::string filename){
     for (auto it = tDSectionOccupations.begin(); it != tDSectionOccupations.end(); it++)
     {
         // if this tdSection is referring to something we havent' seen before
-        if(it->second.trainId != last_train_id)
+        if(it->cnt.second.trainId != last_train_id)
         {
             // if we are not in the first loop
             if(last_train_id != ""){
@@ -136,22 +198,22 @@ void RTTP::dump(std::string filename){
             
             // open rTTPForSingleTrain
             printer.OpenElement( "rTTPForSingleTrain" );
-            printer.PushAttribute( "journeyId", it->second.journeyId.c_str() );
-            printer.PushAttribute( "trainId", it->second.trainId.c_str() );
+            printer.PushAttribute( "journeyId", it->cnt.second.journeyId.c_str() );
+            printer.PushAttribute( "trainId", it->cnt.second.trainId.c_str() );
             
-            last_train_id = it->second.trainId;
+            last_train_id = it->cnt.second.trainId;
         }
-
+        
         int count = 0;
         
         printer.OpenElement( "tDSectionOccupation" );
-        printer.PushAttribute( "occupationStart", std::to_string(it->second.occupationStart).c_str() );
-        printer.PushAttribute( "routeId", it->second.routeId.c_str() );
-        printer.PushAttribute( "tDSectionID", it->second.tDSectionID.c_str() );
-        printer.PushAttribute( "trainID", it->second.trainId.c_str() );
-        printer.PushAttribute( "trainSequenceID", std::to_string(count).c_str());
+        printer.PushAttribute( "occupationStart", std::to_string(it->cnt.second.occupationStart).c_str() );
+        printer.PushAttribute( "routeId", it->cnt.second.routeId.c_str() );
+        printer.PushAttribute( "tDSectionID", it->cnt.second.tDSectionID.c_str() );
+        printer.PushAttribute( "trainID", it->cnt.second.trainId.c_str() );
+        printer.PushAttribute( "trainSequenceID", std::to_string(it->cnt.second.trainSequenceID).c_str());
         count++;
-
+        
         //close tDSectionOccupation
         printer.CloseElement();
     }
@@ -195,9 +257,15 @@ void RTTP::dump(std::string filename){
     fclose(fp);
 };
 
-RTTP_diff::RTTP_diff(){
-    this->op = "stocazzo";
-};
+RTTP perturbate_RTTP(void){
+    std::string fileRTTP = "../../data/base/RTTP.3branch_A.xml";
+    RTTP RTTP_pert = RTTP(fileRTTP);
+    return RTTP_pert;
+}
+
+
+
+
 
 //int merge(RTTP* ANC, RTTP* input){
 //    errorCode retval=MERGE_SUCCESS;
@@ -230,11 +298,6 @@ RTTP_diff::RTTP_diff(){
 
 
 
-//RTTP perturbate_RTTP(void){
-//    std::string fileRTTP = "../../data/base/RTTP.3branch_A.xml";
-//    RTTP RTTP_pert = RTTP(fileRTTP);
-//    return RTTP_pert;
-//}
 
 //rTTPForSingleTrain::rTTPForSingleTrain(std::string _journeyId, std::string _trainId ){
 //    this->journeyId = _journeyId;

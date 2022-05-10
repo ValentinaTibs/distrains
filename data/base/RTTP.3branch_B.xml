@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<PLAY>
-<TITLE attr0='My name is'>A Midsummer Night's Dream</TITLE>
-<TITLE attr0='Giovanni Giorgio'> La bisbetica Domata</TITLE>
-<TITLE attr0='But Everybody'>Romeo e Giulietta</TITLE>
-</PLAY>
 <rTTP>
   <rTTPTrainView>
     <rTTPForSingleTrain journeyId="I:BR_S26l-BL_S20l--a11-a6.St___CL" trainId="1001_0">

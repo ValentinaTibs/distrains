@@ -10,6 +10,13 @@
 
 #include <map>
 #include <utils.h>
+#include <vector>
+
+
+//typedef XXH64_hash_t tdSecKey;
+typedef std::string tdSecKey;
+extern  XXH64_hash_t app_seed;
+
 
 class tDSectionOccupation{
 public:
@@ -21,67 +28,114 @@ public:
     std::string routeId;
     std::string tDSectionID;
     int trainSequenceID;
-        
+    
+    tDSectionOccupation(){ exit; };
     tDSectionOccupation(int _occupationStart,std::string _routeId,std::string _tDSectionID,std::string _journeyId, std::string _trainId);
     void settrainSequenceID (int _trainSequenceID);
-    std::string makeKey(void);
+    tdSecKey makeKey(void);
+    
+    bool operator==(const tDSectionOccupation& r){
+        if(journeyId==r.journeyId && occupationStart==r.occupationStart)
+            return true;
+        return false;
+    };
+    
 };
 
-//typedef XXH64_hash_t tdSecKey;
-typedef XXH64_hash_t tdSecKey;
-extern  XXH64_hash_t app_seed;
+//typedef std::pair<tdSecKey, tDSectionOccupation> RTTP_member;
+//static bool cmp(const RTTP_member& l,const RTTP_member& r){
+//    return l.second.trainId < r.cnt.second.trainId;
+//}
+
+class RTTP_member{
+public:
+    std::pair<tdSecKey, tDSectionOccupation> cnt;
+
+    bool cmp(const RTTP_member& l,const RTTP_member& r){
+        return l.cnt.second.trainId < r.cnt.second.trainId;
+    };
+    
+    bool operator==(const RTTP_member& r){
+        return this->cnt.first == r.cnt.first;
+    };
+    
+    RTTP_member(tdSecKey _tdSecKey, tDSectionOccupation _tDSectionOccupation ){
+        this->cnt = std::pair<tdSecKey,tDSectionOccupation>(_tdSecKey,_tDSectionOccupation);
+    };
+    
+    RTTP_member(){
+        exit;
+    };
+};
 
 class RTTP{
 public:
     //*--- MEMBERS  ---*//
-    std::map<tdSecKey, tDSectionOccupation> tDSectionOccupations;
+    //std::map<tdSecKey, tDSectionOccupation> tDSectionOccupations;
+    std::vector< RTTP_member > tDSectionOccupations;
 
     //*--- CONSTRUCTOR  ---*//
     RTTP(std::string filename);
     void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation);
-    
+    RTTP_member* find_tDSectionOccupation(RTTP_member _tDSO);
 
 //    //*--- SERVICE  ---*//
     void printAll(void);
     void dump(std::string);
+
 };
 
-//enum errorCode{
-//    MERGE_SUCCESS,
-//    MISMATCH,
-//};
-//
-class RTTP_diff{
+enum errorCode{
+    MERGE_SUCCESS,
+    MISMATCH,
+};
+
+
+enum op_type{
+    ADD,
+    DEL,
+    UPDATE
+};
+
+class RTTP_diff_op{
+public:
     // here admitted operation are ADD - DEL - UPDATE
-    std::string op;
-    RTTP_diff();
+    op_type op;
+    tDSectionOccupation old_val;
+    tDSectionOccupation new_val;
+    RTTP_diff_op(op_type _op,tDSectionOccupation _old_val,tDSectionOccupation _new_val){
+        this->op=_op;
+        this->new_val = _new_val;
+        this->old_val = _old_val;
+    };
+    
+    RTTP_diff_op(op_type _op,tDSectionOccupation _new_val){
+        this->op=_op;
+        this->new_val = _new_val;
+    };
 };
 
-//int diff(RTTP* ANC, RTTP* input);
+class RTTP_diff{
+private:
+    std::vector<RTTP_diff_op> ops;
+public:
+    void add_op(op_type _op,tDSectionOccupation _old_val,tDSectionOccupation _new_val);
+    void add_op(op_type _op,tDSectionOccupation _new_val);
+};
+
+
+RTTP perturbate_RTTP(void);
+RTTP_diff diff(RTTP* ANC, RTTP* input);
+
 //int merge(RTTP* ANC, RTTP* input);
 
 #endif /* RTTP_h */
 
-
-
-//class rTTPForSingleTrain{
-//public:
-//    std::map<tdSecKey, tDSectionOccupation> tDSectionOccupations;
-//    std::string journeyId;
-//    std::string trainId;
-//
-//    rTTPForSingleTrain(std::string _journeyId, std::string _trainId );
-//    void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation);
-//};
-//
-
-//RTTP perturbate_RTTP(void);
 //2do
 // implement here a method to check if 2 rttp are the same
 
 // NOT IMPLEMENTED - check the integrity of an RTTP
 // void checkRTTP();
-
 
 //2do
 // implement here a method to dump a rttp in a XML file
