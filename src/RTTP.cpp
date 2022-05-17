@@ -43,49 +43,7 @@ RTTP_member* RTTP::find_tDSectionOccupation(RTTP_member _tDSO){
     return nullptr ;
 }
 
-void RTTP_diff::add_op(op_type _op,tDSectionOccupation _new_val){
-    ops.push_back(RTTP_diff_op(_op,_new_val));
-};
 
-
-void RTTP_diff::add_op(op_type _op,tDSectionOccupation _old_val, tDSectionOccupation _new_val){
-    ops.push_back(RTTP_diff_op(_op,_old_val,_new_val));
-};
-
-RTTP_diff diff(RTTP* L, RTTP* R){
-
-    RTTP_diff results;
-
-    for(auto it = L->tDSectionOccupations.begin(); it != L->tDSectionOccupations.end();it++){
-        auto found = R->find_tDSectionOccupation(*it);
-        if (found != nullptr) {
-            if(found->cnt.second==it->cnt.second){
-                printf(" FOUND %s ", it->cnt.first.c_str());
-            }
-            else{
-                printf(" UPDATED %s ", it->cnt.first.c_str());
-                results.add_op(op_type::UPDATE,found->cnt.second,it->cnt.second);
-            }
-        } else {
-            printf(" DELETED %s ", it->cnt.first.c_str());
-            results.add_op(op_type::DEL,it->cnt.second);
-        }
-    }
-    
-    printf("\n");
-    
-    for(auto it = R->tDSectionOccupations.begin(); it != R->tDSectionOccupations.end();it++){
-        auto found = L->find_tDSectionOccupation(*it);
-        if (found != nullptr) {
-            printf(" FOUND %s ", it->cnt.first.c_str());
-        } else {
-            printf(" ADDED %s ", it->cnt.first.c_str());
-            results.add_op(op_type::ADD,found->cnt.second);
-        }
-    }
-    return results;
-
-};
 
 RTTP::RTTP(std::string filename){
 
@@ -257,9 +215,21 @@ void RTTP::dump(std::string filename){
     fclose(fp);
 };
 
+// data una RTTP estrae una sotto parte che riguarda solo un tot di treni
 RTTP perturbate_RTTP(void){
     std::string fileRTTP = "../../data/base/RTTP.3branch_A.xml";
     RTTP RTTP_pert = RTTP(fileRTTP);
+    return RTTP_pert;
+}
+#include <algorithm>
+
+RTTP perturbate_RTTP(RTTP* in,std::vector<std::string> train_Ids){
+    RTTP RTTP_pert;
+    
+    for(auto it = in->tDSectionOccupations.begin(); it != in->tDSectionOccupations.end();it++){
+            if(std::find(train_Ids.begin(), train_Ids.end(), it->cnt.second.trainId)!= train_Ids.end())
+                RTTP_pert.addtDSectionOccupation(it->cnt.second);
+    }
     return RTTP_pert;
 }
 
@@ -267,30 +237,62 @@ RTTP perturbate_RTTP(void){
 
 
 
-//int merge(RTTP* ANC, RTTP* input){
+//int merge(RTTP* L, RTTP* R){
+//
 //    errorCode retval=MERGE_SUCCESS;
 //
-//    // for all elements in the TrainView
-//    for(auto it = input->tDSectionOccupations.begin(); it != input->tDSectionOccupations.end(); it++){
-//
-//        // THE ELEMENT IS NOT PRESENT IN THE ANCESTOR - search by key and add it
-//        if( ANC->tDSectionOccupations.find(it->first) == ANC->tDSectionOccupations.end() )
-//        {
-//            // can be not presence because some of the element that constitute the key have changed
-//            // so we must first check if something between the two keys hasn't changed
-//            ANC->addtDSectionOccupation(it->second);
+//    for(auto it = L->tDSectionOccupations.begin(); it != L->tDSectionOccupations.end();it++){
+//        auto found = R->find_tDSectionOccupation(*it);
+//        if (found != nullptr) {
+//            if(found->cnt.second==it->cnt.second){
+//                printf(" FOUND %s ", it->cnt.first.c_str());
+//            }
+//            else{
+//                printf(" UPDATED %s ", it->cnt.first.c_str());
+//                results.add_op(op_type::UPDATE,found->cnt.second,it->cnt.second);
+//            }
+//        } else {
+//            printf(" DELETED %s ", it->cnt.first.c_str());
+//            results.add_op(op_type::DEL,it->cnt.second);
 //        }
-//
-//
-////        else{
-////            for(auto fr = it->second.tDSectionOccupations.begin(); fr != input->second.tDSectionOccupations.end(); fr++){
-////
-////        }
 //    }
+//
+//    printf("\n");
+//
+//    for(auto it = R->tDSectionOccupations.begin(); it != R->tDSectionOccupations.end();it++){
+//        auto found = L->find_tDSectionOccupation(*it);
+//        if (found != nullptr) {
+//            printf(" FOUND %s ", it->cnt.first.c_str());
+//        } else {
+//            printf(" ADDED %s ", it->cnt.first.c_str());
+//            results.add_op(op_type::ADD,found->cnt.second);
+//        }
+//    }
+//
+////
+////    // for all elements in the TrainView
+////    for(auto it = input->tDSectionOccupations.begin(); it != input->tDSectionOccupations.end(); it++){
+////
+////        // THE ELEMENT IS NOT PRESENT IN THE ANCESTOR - search by key and add it
+////        if( L->tDSectionOccupations.find(it->first) == ANC->tDSectionOccupations.end() )
+////        {
+////            // can be not presence because some of the element that constitute the key have changed
+////            // so we must first check if something between the two keys hasn't changed
+////            ANC->addtDSectionOccupation(it->second);
+////        }
+////
+////
+//////        else{
+//////            for(auto fr = it->second.tDSectionOccupations.begin(); fr != input->second.tDSectionOccupations.end(); fr++){
+//////
+//////        }
+////    }
 //
 //    return retval;
 //}
-//
+
+
+
 //int diff(RTTP* ANC, RTTP* input){
 //    errorCode retval=MERGE_SUCCESS;
 //    return retval;

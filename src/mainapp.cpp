@@ -27,31 +27,61 @@ void broadcast(int idx, train* trains){
 int main (int argc, char *argv[]) {
 
     // this conf should be put in a json: UserName - ancesto - history
+    for(auto i=0;i<argc;i++)
+        printf("%s ",argv[i]);
     
-    // ********** load the ancestor  **********
-    std::string fileRTT_anc = "../../data/base/EASY_DIFF_A.xml";
-    RTTP RTT_anc = RTTP(fileRTT_anc);
+    std::string base_path = argv[1];
+    int train_num =  std::stoi(argv[2]);
     
-//    std::string fileRTT_anc = "../../data/base/RTTP.3branch.xml";
-//    RTTP RTT_anc = RTTP(fileRTT_anc);
+    // parse the RTTP files
+    std::vector<std::string> RTTP_files;
+    for(auto i=3;i<3+train_num;i++){
+        std::string fileRTTP = argv[i];
+        RTTP_files.push_back( base_path +  fileRTTP + ".xml");
+    }
+    
+    // in case we need need extract neighbrhood
+    std::vector<std::vector<std::string> > trains_filters;
+    
+    for(auto i=3+train_num;i< 3 + train_num * 2;i++){
+        trains_filters.push_back(split_string(argv[i],","));
+    }
+ 
+    // ********** obtain a new version from local train neighborhood **********
+    std::vector<RTTP> all_local_individual;
+    for(int i=0; i<num_trains-1; i++ ){
+        RTTP local_full(RTTP_files[i]);
+        RTTP local_individual = perturbate_RTTP(&local_full,trains_filters[i]);
+        all_local_individual.push_back(local_individual);
+    }
+    
+    errorCode _error = local_individual_2_global(all_local_individual);
+    print_errorCode(_error);
+    
+//    RTTP merged_RTTP;
+//    
+//    errorCode res = apply_diff(&RTT_anc,&RTTP_pert,&merged_RTTP);
+//    print_errorCode(res);
+//    
+//    merged_RTTP.printAll();
+    
+    //auto res = merge(RTT_anc,RTTP_pert);
+    
+    
+//    RTTP_res.dump("../../data/base/RTTP.result.xml");
+//
+//    auto this_diff = diff(&RTT_anc, &RTT_anc_B);
+    
+    // WE MUST BE SURE THAT this has been done accordingly to the OPS history
+    // merge(RTT_anc,this_diff);
 
-    std::string fileHIST_anc = "../../data/base/EASY_DIFF_B.xml";
-    RTTP RTT_anc_B = RTTP(fileHIST_anc);
-
-    // ********** obtain a new version **********
-    //RTTP RTT_vers = perturbate_RTTP();
-
-    
-    auto this_diff = diff(&RTT_anc, &RTT_anc_B);
-    
     //create_version();
     
 //    RTT_anc.printAll();
-//
+
 //    std::string fileRTT_A = "../../data/base/RTTP.3branch_A.xml";//,  fileRTT_A, fileRTT_B;
 //    RTTP RTT_A = RTTP(fileRTT_A);
 //
-//    merge(&RTT_anc, &RTT_A);
     //RTT_anc.printAll();
 
    //RTT_vers.dump("../../data/base/RTTP.result.xml");

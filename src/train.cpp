@@ -8,7 +8,6 @@ int train::check(void){
 	printf("Everything is fine for %d \n",this->name);
 	return 0;
 };
-	
 
 int train::sendmsg(train* receiver){
     receiver->read_from.push(this);

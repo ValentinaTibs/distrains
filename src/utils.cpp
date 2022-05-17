@@ -15,4 +15,18 @@ XXH64_hash_t hash_string(const char* _string, XXH64_hash_t seed){
     return XXH64((void*)_string, length, seed);
 }
 
+std::vector<std::string> split_string(std::string s,std::string delim){
+    std::vector<std::string> words;
 
+        auto start = 0U;
+        auto end = s.find(delim);
+        while (end != std::string::npos)
+        {
+            words.push_back(s.substr(start, end - start));
+            start = end + delim.length();
+            end = s.find(delim, start);
+        }
+    
+        words.push_back(s.substr(start, end));
+    return words;
+}

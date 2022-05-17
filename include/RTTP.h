@@ -76,6 +76,8 @@ public:
 
     //*--- CONSTRUCTOR  ---*//
     RTTP(std::string filename);
+    RTTP(){};
+    
     void addtDSectionOccupation(tDSectionOccupation _newtDSectionOccupation);
     RTTP_member* find_tDSectionOccupation(RTTP_member _tDSO);
 
@@ -85,49 +87,11 @@ public:
 
 };
 
-enum errorCode{
-    MERGE_SUCCESS,
-    MISMATCH,
-};
-
-
-enum op_type{
-    ADD,
-    DEL,
-    UPDATE
-};
-
-class RTTP_diff_op{
-public:
-    // here admitted operation are ADD - DEL - UPDATE
-    op_type op;
-    tDSectionOccupation old_val;
-    tDSectionOccupation new_val;
-    RTTP_diff_op(op_type _op,tDSectionOccupation _old_val,tDSectionOccupation _new_val){
-        this->op=_op;
-        this->new_val = _new_val;
-        this->old_val = _old_val;
-    };
-    
-    RTTP_diff_op(op_type _op,tDSectionOccupation _new_val){
-        this->op=_op;
-        this->new_val = _new_val;
-    };
-};
-
-class RTTP_diff{
-private:
-    std::vector<RTTP_diff_op> ops;
-public:
-    void add_op(op_type _op,tDSectionOccupation _old_val,tDSectionOccupation _new_val);
-    void add_op(op_type _op,tDSectionOccupation _new_val);
-};
 
 
 RTTP perturbate_RTTP(void);
-RTTP_diff diff(RTTP* ANC, RTTP* input);
+RTTP perturbate_RTTP(RTTP* in,std::vector<std::string> train_Ids);
 
-//int merge(RTTP* ANC, RTTP* input);
 
 #endif /* RTTP_h */
 
