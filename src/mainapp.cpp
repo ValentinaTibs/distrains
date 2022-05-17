@@ -47,8 +47,12 @@ int main (int argc, char *argv[]) {
         trains_filters.push_back(split_string(argv[i],","));
     }
  
+    RTTP print_all(RTTP_files[0]);
+    print_all_trains(&print_all);
     // ********** obtain a new version from local train neighborhood **********
     std::vector<RTTP> all_local_individual;
+    
+    
     for(int i=0; i<num_trains-1; i++ ){
         RTTP local_full(RTTP_files[i]);
         RTTP local_individual = perturbate_RTTP(&local_full,trains_filters[i]);
@@ -57,6 +61,7 @@ int main (int argc, char *argv[]) {
     
     errorCode _error = local_individual_2_global(all_local_individual);
     print_errorCode(_error);
+        
     
 //    RTTP merged_RTTP;
 //    

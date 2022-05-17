@@ -22,7 +22,4 @@ errorCode local_individual_2_global(std::vector<RTTP> _in);
 
 void print_errorCode(errorCode _err);
 
-
-
-
 #endif /* protocol_h */

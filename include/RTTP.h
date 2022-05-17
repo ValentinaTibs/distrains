@@ -90,8 +90,8 @@ public:
 
 
 RTTP perturbate_RTTP(void);
-RTTP perturbate_RTTP(RTTP* in,std::vector<std::string> train_Ids);
-
+RTTP perturbate_RTTP(RTTP* _in,std::vector<std::string> train_Ids);
+void print_all_trains(RTTP* _in);
 
 #endif /* RTTP_h */
 

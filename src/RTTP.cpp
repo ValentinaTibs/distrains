@@ -43,8 +43,6 @@ RTTP_member* RTTP::find_tDSectionOccupation(RTTP_member _tDSO){
     return nullptr ;
 }
 
-
-
 RTTP::RTTP(std::string filename){
 
     // 2do metterci un check per vedere se il file esiste
@@ -223,17 +221,26 @@ RTTP perturbate_RTTP(void){
 }
 #include <algorithm>
 
-RTTP perturbate_RTTP(RTTP* in,std::vector<std::string> train_Ids){
+RTTP perturbate_RTTP(RTTP* _in,std::vector<std::string> train_Ids){
     RTTP RTTP_pert;
     
-    for(auto it = in->tDSectionOccupations.begin(); it != in->tDSectionOccupations.end();it++){
+    for(auto it = _in->tDSectionOccupations.begin(); it != _in->tDSectionOccupations.end();it++){
             if(std::find(train_Ids.begin(), train_Ids.end(), it->cnt.second.trainId)!= train_Ids.end())
                 RTTP_pert.addtDSectionOccupation(it->cnt.second);
     }
     return RTTP_pert;
 }
 
-
+void print_all_trains(RTTP* _in){
+    std::vector<std::string> all_trains;
+    for(auto it = _in->tDSectionOccupations.begin(); it != _in->tDSectionOccupations.end();it++){
+        if (std::find(all_trains.begin(), all_trains.end(), it->cnt.second.trainId) == all_trains.end()) {
+            all_trains.push_back( it->cnt.second.trainId);
+            printf(" \n -> train %s ", it->cnt.second.trainId.c_str());
+        }
+    }
+    printf(" \n ");
+}
 
 
 
