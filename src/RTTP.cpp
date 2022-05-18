@@ -47,8 +47,12 @@ RTTP::RTTP(std::string filename){
 
     // 2do metterci un check per vedere se il file esiste
     tinyxml2::XMLDocument doc;
-    doc.LoadFile( filename.c_str() );
-
+    tinyxml2::XMLError succ = doc.LoadFile( filename.c_str() );
+    if (succ != tinyxml2::XML_SUCCESS){
+        printf(" Error loading FILE error %d \n", succ);
+        //ErrorStr
+        exit(0);
+    }
     // 2do metterci un check che si assicuri l'esistenza sia di rTTP che di rTTPTrainView
     // e che altrimenti ritorni un errore di file malformato
     tinyxml2::XMLNode* ele = doc.FirstChildElement( "rTTP" )->FirstChildElement("rTTPTrainView")->FirstChildElement();
@@ -213,14 +217,14 @@ void RTTP::dump(std::string filename){
     fclose(fp);
 };
 
-// data una RTTP estrae una sotto parte che riguarda solo un tot di treni
-RTTP perturbate_RTTP(void){
+RTTP perturbate_RTTP(RTTP* _in){
     std::string fileRTTP = "../../data/base/RTTP.3branch_A.xml";
     RTTP RTTP_pert = RTTP(fileRTTP);
     return RTTP_pert;
 }
 #include <algorithm>
 
+// data una RTTP estrae una sotto parte che riguarda solo un tot di treni
 RTTP perturbate_RTTP(RTTP* _in,std::vector<std::string> train_Ids){
     RTTP RTTP_pert;
     

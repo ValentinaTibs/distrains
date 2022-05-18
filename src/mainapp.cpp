@@ -25,7 +25,11 @@ void broadcast(int idx, train* trains){
 }
 
 int main (int argc, char *argv[]) {
-
+    
+    if(argc <= 6){
+        printf("Wrong USAGE");
+        return 0;
+    }
     // this conf should be put in a json: UserName - ancesto - history
     for(auto i=0;i<argc;i++)
         printf("%s ",argv[i]);
@@ -51,7 +55,6 @@ int main (int argc, char *argv[]) {
     print_all_trains(&print_all);
     // ********** obtain a new version from local train neighborhood **********
     std::vector<RTTP> all_local_individual;
-    
     
     for(int i=0; i<num_trains-1; i++ ){
         RTTP local_full(RTTP_files[i]);
