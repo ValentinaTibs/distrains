@@ -222,6 +222,25 @@ RTTP perturbate_RTTP(RTTP* _in){
     RTTP RTTP_pert = RTTP(fileRTTP);
     return RTTP_pert;
 }
+
+RTTP perturbate_RTTP(RTTP* _in, int trashold){
+    
+    RTTP RTTP_pert;
+    
+    for(auto it = _in->tDSectionOccupations.begin(); it != _in->tDSectionOccupations.end();it++){
+        int v1 = rand() % 100;
+        int v2 = rand() % 20 - 10;
+        
+        auto new_tdsec_occ = it->cnt.second;
+        if(v1<trashold)
+            new_tdsec_occ.occupationStart += v2;
+        
+        RTTP_pert.addtDSectionOccupation(new_tdsec_occ);
+    }
+    
+    return RTTP_pert;
+}
+
 #include <algorithm>
 
 // data una RTTP estrae una sotto parte che riguarda solo un tot di treni

@@ -63,49 +63,24 @@ int main (int argc, char *argv[]) {
         all_local_individual.push_back(local_individual);
     }
     
-    
     //  Merge Local Individual
     RTTP local_global;
-    errorCode _error = local_individual_2_local_global(all_local_individual,&local_global);
+    errorCode _error;
+    
+    local_global = local_individual_2_local_global(all_local_individual,_error);
     print_errorCode(_error);
     local_global.printAll();
     
+    auto res = perturbate_RTTP(&local_global, 5);
+    res.dump("RTTP.pert_5.xml");
     
+    //  Merge 2 Global
     RTTP global_merge;
-    HIST local_hist;
-    _error = local_global_2_global(&local_hist,&local_global,&global_merge);
+    HIST* local_hist = new HIST();
+    global_merge = local_global_2_global(local_hist,&local_global,_error);
     print_errorCode(_error);
     global_merge.printAll();
-    
-    
-//    RTTP merged_RTTP;
-//    
-//    errorCode res = apply_diff(&RTT_anc,&RTTP_pert,&merged_RTTP);
-//    print_errorCode(res);
-//    
-//    merged_RTTP.printAll();
-    
-    //auto res = merge(RTT_anc,RTTP_pert);
-    
-    
-//    RTTP_res.dump("../../data/base/RTTP.result.xml");
-//
-//    auto this_diff = diff(&RTT_anc, &RTT_anc_B);
-    
-    // WE MUST BE SURE THAT this has been done accordingly to the OPS history
-    // merge(RTT_anc,this_diff);
-
-    //create_version();
-    
-//    RTT_anc.printAll();
-
-//    std::string fileRTT_A = "../../data/base/RTTP.3branch_A.xml";//,  fileRTT_A, fileRTT_B;
-//    RTTP RTT_A = RTTP(fileRTT_A);
-//
-    //RTT_anc.printAll();
-
-   //RTT_vers.dump("../../data/base/RTTP.result.xml");
-
+  
 	printf("\nexecution Done\n");
 	return 0;
 }

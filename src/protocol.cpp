@@ -52,22 +52,31 @@ errorCode apply_diff(RTTP* L, RTTP* R, RTTP* result){
     errorCode retval=MERGE_SUCCESS;
     
     RTTP_diff the_diff = diff(L, R);
-
-    return apply_diff(L,the_diff,result);
+    retval = apply_diff(L,the_diff,result);
+    return retval;
 }
 
-errorCode local_individual_2_local_global(std::vector<RTTP> _in,RTTP* merged){
-    errorCode retval = errorCode::MERGE_SUCCESS;
-    merged =&(_in[0]);
+RTTP local_individual_2_local_global(std::vector<RTTP> _in,errorCode  retval =errorCode::MERGE_SUCCESS ){
+    RTTP merged;
+    merged = _in[0];
     for (auto it = _in.begin()+1; it != _in.end(); it++){
-        retval = apply_diff(merged,&*it,merged);
+        retval = apply_diff(&merged,&*it,&merged);
     }
-    return  retval;
+    return  merged;
 };
 
-errorCode local_global_2_global(HIST* local_hist,RTTP* local_global,RTTP* global_merge){
+//errorCode local_individual_2_local_global(std::vector<RTTP> _in,RTTP* merged){
+//    errorCode retval = errorCode::MERGE_SUCCESS;
+//    merged = &(_in[0]);
+//    for (auto it = _in.begin()+1; it != _in.end(); it++){
+//        retval = apply_diff(merged,&*it,merged);
+//    }
+//    return  retval;
+//};
+
+RTTP local_global_2_global(HIST* local_hist,RTTP* local_global,errorCode _error = MERGE_SUCCESS){
     
-    errorCode _error = MERGE_SUCCESS;
+    RTTP global_merge;
     
     RTTP last_merge = local_hist->get_last_merge();
     RTTP current_merge = local_hist->get_current_merge();
@@ -79,13 +88,13 @@ errorCode local_global_2_global(HIST* local_hist,RTTP* local_global,RTTP* global
     _error = merge_diff(&anc_diff,&pull_diff,&merged_diff);
     
     //global_merge
-    _error = apply_diff(local_global, merged_diff, global_merge);
+    _error = apply_diff(local_global, merged_diff, &global_merge);
     
     if(_error == MERGE_SUCCESS){
         
         local_hist->update_hist();
     }
-    return _error;
+    return global_merge;
 }
 
 void print_errorCode(errorCode _err){
