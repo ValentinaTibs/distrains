@@ -10,6 +10,7 @@
 
 #include "RTTP.h"
 
+
 enum op_type{
     ADD,
     DEL,
@@ -32,6 +33,14 @@ public:
         this->op=_op;
         this->new_val = _new_val;
     };
+    
+    bool operator==(const RTTP_diff_op& r){
+        if(this->new_val == r.new_val && this->op == r.op)
+            return true;
+        return false;
+    };
+        
+    
 };
 
 class RTTP_diff{
@@ -41,8 +50,11 @@ public:
     void add_op(op_type _op,tDSectionOccupation _old_val,tDSectionOccupation _new_val);
     void add_op(op_type _op,tDSectionOccupation _new_val);
     std::vector<RTTP_diff_op> all_ops(){return this->ops;}
+    
+    RTTP_diff_op* find(RTTP_diff_op _in);
+    
 };
 
-RTTP_diff diff(RTTP* ANC, RTTP* input);
+RTTP_diff diff      (RTTP* ANC, RTTP* input);
 
 #endif /* diff_h */

@@ -16,6 +16,14 @@ void RTTP_diff::add_op(op_type _op,tDSectionOccupation _old_val, tDSectionOccupa
     ops.push_back(RTTP_diff_op(_op,_old_val,_new_val));
 };
 
+RTTP_diff_op* RTTP_diff::find(RTTP_diff_op _in){
+    for(auto it = this->all_ops().begin(); it != this->all_ops().end(); it++){
+        if(*it == _in)
+            return  &*it;
+    }
+    return nullptr;
+}
+
 RTTP_diff diff(RTTP* L, RTTP* R){
 
     RTTP_diff results;
@@ -50,4 +58,5 @@ RTTP_diff diff(RTTP* L, RTTP* R){
     return results;
 
 };
+
 

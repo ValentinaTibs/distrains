@@ -20,17 +20,18 @@ extern  XXH64_hash_t app_seed;
 
 class tDSectionOccupation{
 public:
-    
-    std::string journeyId;
-    std::string trainId;
 
     int occupationStart;
+    int trainSequenceID;
+
+    std::string journeyId;
+    std::string trainId;
     std::string routeId;
     std::string tDSectionID;
-    int trainSequenceID;
     
     tDSectionOccupation(){ exit; };
     tDSectionOccupation(int _occupationStart,std::string _routeId,std::string _tDSectionID,std::string _journeyId, std::string _trainId);
+    
     void settrainSequenceID (int _trainSequenceID);
     tdSecKey makeKey(void);
     
@@ -41,11 +42,6 @@ public:
     };
     
 };
-
-//typedef std::pair<tdSecKey, tDSectionOccupation> RTTP_member;
-//static bool cmp(const RTTP_member& l,const RTTP_member& r){
-//    return l.second.trainId < r.cnt.second.trainId;
-//}
 
 class RTTP_member{
 public:
@@ -86,8 +82,6 @@ public:
     void dump(std::string);
 
 };
-
-
 
 RTTP perturbate_RTTP(void);
 RTTP perturbate_RTTP(RTTP* _in,std::vector<std::string> train_Ids);

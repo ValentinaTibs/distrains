@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "RTTP.h"
 #include "protocol.h"
+#include "hist.h"
 
 static int num_trains = 3;
 XXH64_hash_t app_seed = 3;
@@ -62,9 +63,20 @@ int main (int argc, char *argv[]) {
         all_local_individual.push_back(local_individual);
     }
     
-    errorCode _error = local_individual_2_global(all_local_individual);
+    
+    //  Merge Local Individual
+    RTTP local_global;
+    errorCode _error = local_individual_2_local_global(all_local_individual,&local_global);
     print_errorCode(_error);
-        
+    local_global.printAll();
+    
+    
+    RTTP global_merge;
+    HIST local_hist;
+    _error = local_global_2_global(&local_hist,&local_global,&global_merge);
+    print_errorCode(_error);
+    global_merge.printAll();
+    
     
 //    RTTP merged_RTTP;
 //    
